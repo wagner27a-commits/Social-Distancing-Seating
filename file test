@@ -1,0 +1,51 @@
+#allow the user to input the bar size
+n = Integer(input("n:"))
+for f in range(1,(n/2).ceil()+1): #cycles through the starting positions
+    W = [0 for i in range (n)] #represents the entire bar in a single list
+    W[f-1] = 1 #first person sits down
+    
+    for k in range(2,(n/2).ceil()+1): #k is the # of the person being seated now
+        L = [0 for i in range (n)] #list of minimum distances between one seat and another
+        S = [0 for i in range (n)] #list of second smallest distances between one seat and another
+        for i in range(0,n): #cycles through each of the seats
+            M = [0 for i in range (n)] #list of distances from each other seat that is occupied
+            for j in range(0,n): #cycles through each of the seats
+                if j==i and W[j]!=0:
+                    M[j]=-1 #makes distance negative when talking about own seat
+                elif j!=i and W[j]!=0:
+                    M[j]=abs(j-i) #M represents distance from a person seated in seat j to seat i
+                    
+            Q = [] #list of distances between seat i and seats further than 1 seat away from i
+            for z in range(0,n): #cycles through each of the seats
+                if M[z]>=2: #if there is at least 1 seat between seat i and seat z
+                    Q.append(M[z]) #add the distance to Q
+            if -1 in M or 1 in M: #if seat i is already filled or directly next to one that is already filled
+                L[i]=-1+(-1*n) #this is a sufficiently small number that it will never be the maximum, so we essentially ignore it
+            elif len(Q)==1: #if there is only 1 seat separated from seat i by at least 1 seat
+                L[i]=max(M) #the element of L at position i is the maximum distance from seat i to another seat
+            elif len(Q)==0: #if all seats are not separated from seat i by at least 1 seat
+                L[i]=-1+(-1*n) #this is a sufficiently small number that it will never be the maximum, so we essentially ignore it
+            else: #case where no seats directly next to seat i are filled
+                L[i] = min(Q) #the element of L at position i is the minimum distance from seat i to another seat
+                Q.pop(Q.index(min(Q))) #remove minimum distance
+                S[i] = min(Q) #the element of S at position i is the second smallest distance from seat i to another seat
+            
+        x = L.index(max(L)) #let x be the seat that is the furthest away from any other seat
+        if k!=2: #if the third person or later is being seated
+            for u in range(0,n): #cycles through each of the seats
+                if x!=u and L[u]==max(L) and S[u] < S[x]: #replaces x with u if the second smallest distance is less for u than for x
+                    x = u
+            if max(L)>=0: #if the max value of L is positive, seat person k in the xth seat
+                W[x]=k 
+            else: 
+                break 
+        else: #if the second person is being seated
+            if max(L)>=0:  #if the max value of L is positive, seat person k in the xth seat
+                W[x]=k
+            else:
+                break 
+        
+    print(W) #prints the bar
+    if max(W)==(n/2).ceil():
+        print(n, f, " works!")
+        print(n, n-f+1, " works!") #by symmetry
